@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="theme-color" content="#0b1020"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>My Approved Playlist</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#f1f5ff;background:#0b1020;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -10%,#20345c,#0b1020 48%);min-height:100vh}header,main,footer{max-width:1200px;margin:auto}header{padding:22px 17px 12px;display:flex;align-items:center;gap:12px}.logo{background:#4968e9;border-radius:12px;padding:12px}h1{font-size:1.35rem;margin:0}p{color:#b5c3de;line-height:1.45}.muted{font-size:.85rem;color:#9eafcb}main{padding:12px 17px 50px}.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,1fr);gap:16px;align-items:start}.panel{background:#151e33;border:1px solid #344362;border-radius:16px;padding:16px}.video{aspect-ratio:16/9;background:#05080f;overflow:hidden;border-radius:12px;border:1px solid #33405c}.video>div,.video iframe{height:100%;width:100%}.controls{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}button{border:1px solid #4e6288;background:#263756;color:#f4f6ff;font-size:.94rem;padding:10px 12px;border-radius:10px;cursor:pointer}button:hover{background:#344c79}button:focus-visible,input:focus-visible{outline:3px solid #91afff;outline-offset:2px}.primary{background:#4968e9;border-color:#4968e9}.playlist-top{display:flex;justify-content:space-between;align-items:center;gap:8px}h2{font-size:1.03rem;margin:0 0 10px}.list{overflow-y:auto;max-height:660px;display:flex;flex-direction:column;gap:5px;padding-right:3px}.item{display:flex;width:100%;align-items:center;gap:12px;text-align:left;padding:8px;background:#1b2944;border-color:transparent}.item.active{border-color:#a3b7ff;background:#2a426a}.thumb{width:106px;aspect-ratio:16/9;object-fit:cover;border-radius:7px;background:#0b1326;flex-shrink:0}.item-title{font-size:.91rem;font-weight:650;display:block}.item-sub{font-size:.76rem;color:#b6c6df;display:block;margin-top:4px}.tools{display:flex;gap:8px;align-items:center;margin-bottom:11px}.tools input{max-width:135px}input{background:#0b1428;color:white;border:1px solid #52658a;padding:10px;border-radius:9px;font-size:16px;width:100%}label{display:block;margin:12px 0 7px;font-size:.86rem;color:#cbd7ed}details{margin-top:16px;border-top:1px solid #35415c;padding-top:14px}summary{cursor:pointer;font-weight:650}.status{font-size:.84rem;color:#b4d7fe;min-height:1.2em;margin-top:9px}footer{text-align:center;padding:0 18px 25px;color:#96a8c6;font-size:.8rem}@media(max-width:780px){.layout{grid-template-columns:1fr}.list{max-height:520px}header{padding-top:calc(18px + env(safe-area-inset-top))}}@media(max-width:420px){header,main{padding-left:11px;padding-right:11px}.panel{padding:12px}.thumb{width:88px}}
+</style>
+</head>
+<body>
+<header><div class="logo" aria-hidden="true">▶</div><div><h1>My Approved Playlist</h1><div class="muted">Only the videos you selected</div></div></header>
+<main><div class="layout"><section class="panel"><div class="video"><div id="player"></div></div><div class="controls"><button id="previous">← Previous</button><button id="next">Next →</button><button id="refresh">↻ Refresh playlist</button></div><p class="muted" id="current">Loading video player…</p><p class="muted">No YouTube homepage, Shorts feed, or general search on this page. Links inside YouTube's own player remain outside this site's control.</p><details><summary>Playlist settings</summary><p class="muted">Paste the full URL if you want to change the approved playlist. Saved on this device only.</p><label for="url">Playlist URL</label><input id="url" type="url" autocomplete="off"><div class="controls"><button class="primary" id="save">Save playlist</button><button id="reset">Use original playlist</button></div></details></section>
+<section class="panel"><div class="playlist-top"><h2>Choose a video</h2><span class="muted" id="count">Loading…</span></div><div class="tools"><label for="jump" style="margin:0;white-space:nowrap">Jump to #</label><input id="jump" type="number" min="1" placeholder="e.g. 125"><button id="go" class="primary">Go</button></div><p class="status" id="status" role="status">Connecting to YouTube…</p><div id="items" class="list" aria-label="Approved playlist videos"></div></section></div></main>
+<footer>Free playlist viewer using the official YouTube embedded player. Thumbnails and numbers are provided by the playlist API; video titles require an additional metadata source.</footer>
+<script>
+'use strict';
+const DEFAULT_ID='PLdJXwy8HTZzE';
+const $=id=>document.getElementById(id);
+const validId=id=>/^[a-zA-Z0-9_-]{10,150}$/.test(id);
+const playlistIdFromUrl=text=>{try{const u=new URL(text.trim());if(!['youtube.com','www.youtube.com','m.youtube.com','music.youtube.com'].includes(u.hostname))return null;const id=u.searchParams.get('list');return id&&validId(id)?id:null}catch{return null}};
+let playlistId=DEFAULT_ID;try{let saved=localStorage.getItem('approvedPlaylistId');if(saved&&validId(saved))playlistId=saved}catch{}
+let player=null,videoIds=[],listRendered=false;
+function message(text){$('status').textContent=text}
+function displayCurrent(){if(!player)return;const idx=player.getPlaylistIndex?.();if(Number.isInteger(idx)&&idx>=0){$('current').textContent=`Now playing video ${idx+1}${videoIds.length?' of '+videoIds.length:''}`;document.querySelectorAll('.item').forEach((element,n)=>{element.classList.toggle('active',n===idx);element.setAttribute('aria-current',n===idx?'true':'false')})}}
+function readPlaylist(){if(!player)return;let ids=[];try{ids=player.getPlaylist()||[]}catch{};if(!Array.isArray(ids)||!ids.length)return;const changed=ids.length!==videoIds.length||ids.some((id,i)=>id!==videoIds[i]);if(changed){videoIds=ids;renderPlaylist()}displayCurrent()}
+function renderPlaylist(){const container=$('items');container.replaceChildren();$('count').textContent=`${videoIds.length} videos`;
+const frag=document.createDocumentFragment();videoIds.forEach((id,i)=>{const button=document.createElement('button');button.type='button';button.className='item';button.title=`Play video ${i+1}`;
+const img=document.createElement('img');img.className='thumb';img.loading=i<12?'eager':'lazy';img.src=`https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg`;img.alt='';
+const copy=document.createElement('span');const title=document.createElement('span');title.className='item-title';title.textContent=`Video ${i+1}`;const sub=document.createElement('span');sub.className='item-sub';sub.textContent='Tap to play';copy.append(title,sub);button.append(img,copy);button.addEventListener('click',()=>jumpTo(i));frag.append(button)});container.append(frag);message(`Loaded ${videoIds.length} videos. Select any thumbnail to watch.`)}
+function jumpTo(index){if(!player||!videoIds.length){message('Playlist has not loaded yet.');return}if(index<0||index>=videoIds.length){message(`Enter a number from 1 to ${videoIds.length}.`);return}player.playVideoAt(index);displayCurrent();const target=$('items').children[index];target?.scrollIntoView({block:'nearest',behavior:'smooth'})}
+function loadPlaylist(){videoIds=[];$('items').replaceChildren();$('count').textContent='Loading…';$('current').textContent='Loading playlist…';message('Connecting to YouTube…');$('url').value=`https://www.youtube.com/playlist?list=${playlistId}`;
+if(!player){return}player.cuePlaylist({listType:'playlist',list:playlistId,index:0});setTimeout(readPlaylist,1500);setTimeout(readPlaylist,4000)}
+window.onYouTubeIframeAPIReady=function(){player=new YT.Player('player',{height:'360',width:'640',playerVars:{listType:'playlist',list:playlistId,playsinline:1,rel:0,origin:location.origin},events:{onReady:function(){loadPlaylist();readPlaylist()},onStateChange:function(){readPlaylist();displayCurrent()},onError:function(event){message('YouTube player error '+event.data+'. Check whether this playlist and its videos allow embedding.')}}})};
+const script=document.createElement('script');script.src='https://www.youtube.com/iframe_api';script.onerror=()=>message('Could not load the YouTube player API. Check network or privacy extensions.');document.head.appendChild(script);
+$('previous').onclick=()=>{player?.previousVideo();setTimeout(readPlaylist,150)};
+$('next').onclick=()=>{player?.nextVideo();setTimeout(readPlaylist,150)};
+$('refresh').onclick=()=>{loadPlaylist()};
+$('go').onclick=()=>jumpTo(Number($('jump').value)-1);
+$('jump').onkeydown=e=>{if(e.key==='Enter')$('go').click()};
+$('save').onclick=()=>{const id=playlistIdFromUrl($('url').value);if(!id){message('Enter a valid YouTube playlist link.');return}playlistId=id;try{localStorage.setItem('approvedPlaylistId',id)}catch{}loadPlaylist()};
+$('reset').onclick=()=>{playlistId=DEFAULT_ID;try{localStorage.removeItem('approvedPlaylistId')}catch{}loadPlaylist()};
+// Some embeds report playlist data asynchronously, so check again after initial setup.
+let checks=0;const poll=setInterval(()=>{if(player){readPlaylist();if(videoIds.length||++checks>18)clearInterval(poll)}},1000);
+</script></body></html>
