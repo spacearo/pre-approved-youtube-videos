@@ -1,16 +1,28 @@
-
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <meta
+    name="referrer"
+    content="strict-origin-when-cross-origin"
+  >
+
   <meta name="theme-color" content="#0b1020">
+
   <title>My Approved Playlist</title>
 
   <style>
-    * { box-sizing: border-box; }
+
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -74,7 +86,10 @@
       font-size: 21px;
     }
 
-    .controls, .jump, .import-actions {
+    .controls,
+    .jump,
+    .import-actions,
+    .playlist-actions {
       display: flex;
       gap: 9px;
       flex-wrap: wrap;
@@ -82,17 +97,23 @@
       margin-top: 14px;
     }
 
-    button, .file-button {
+    button,
+    .file-button,
+    .link-button {
       font: inherit;
       cursor: pointer;
       border: 1px solid #586f97;
       border-radius: 10px;
       background: #334870;
-      color: #fff;
+      color: white;
       padding: 10px 14px;
+      text-decoration: none;
+      display: inline-block;
     }
 
-    button:hover, .file-button:hover {
+    button:hover,
+    .file-button:hover,
+    .link-button:hover {
       background: #4564a2;
     }
 
@@ -103,11 +124,13 @@
       outline-offset: 2px;
     }
 
-    button.primary, .file-button {
+    button.primary,
+    .file-button {
       background: #4968e9;
     }
 
-    input[type=number], input[type=search] {
+    input[type=number],
+    input[type=search] {
       background: #10192d;
       color: white;
       font: inherit;
@@ -127,7 +150,8 @@
       margin-top: 13px;
     }
 
-    .status, .help {
+    .status,
+    .help {
       color: #bdc9e0;
       font-size: 14px;
       line-height: 1.55;
@@ -180,10 +204,6 @@
       margin-top: 3px;
     }
 
-    .file-button {
-      display: inline-block;
-    }
-
     .file-button input {
       display: none;
     }
@@ -203,6 +223,32 @@
       margin: 0 0 6px;
     }
 
+    .playlist-link-box {
+      background: #10192d;
+      border: 1px solid #465879;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 16px;
+    }
+
+    .playlist-link-box h4 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .playlist-url {
+      font-size: 12px;
+      color: #b4c4e5;
+      overflow-wrap: anywhere;
+      margin: 0;
+    }
+
+    .copy-success {
+      color: #80e3a6;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
     #apiPlayerContainer {
       position: absolute;
       left: -9999px;
@@ -213,6 +259,7 @@
     }
 
     @media(max-width: 780px) {
+
       .layout {
         grid-template-columns: 1fr;
       }
@@ -224,9 +271,11 @@
       .playlist {
         max-height: 480px;
       }
+
     }
 
     @media(max-width: 370px) {
+
       .thumbnail {
         flex-basis: 95px;
         width: 95px;
@@ -235,7 +284,9 @@
       .panel {
         padding: 12px;
       }
+
     }
+
   </style>
 </head>
 
@@ -247,12 +298,17 @@
 </header>
 
 <main>
+
   <div class="layout">
 
-    <!-- VIDEO PLAYER -->
+    <!-- ==================================
+         VIDEO PLAYER
+    =================================== -->
+
     <section class="panel">
 
       <div class="player">
+
         <iframe
           id="videoPlayer"
           title="Approved YouTube video"
@@ -260,9 +316,11 @@
           allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
           allowfullscreen>
         </iframe>
+
       </div>
 
       <div class="controls">
+
         <button id="previousButton" type="button">
           ← Previous
         </button>
@@ -274,9 +332,13 @@
         <button id="refreshPlayerButton" type="button">
           ↻ Reload video
         </button>
+
       </div>
 
-      <p id="currentVideo" class="status" aria-live="polite">
+      <p
+        id="currentVideo"
+        class="status"
+        aria-live="polite">
         Loading player…
       </p>
 
@@ -287,13 +349,20 @@
 
     </section>
 
-    <!-- APPROVED VIDEO LIST -->
+
+    <!-- ==================================
+         APPROVED VIDEO LIST
+    =================================== -->
+
     <section class="panel">
 
       <h2>Choose a video</h2>
 
       <div class="jump">
-        <label for="videoNumber">Jump to #</label>
+
+        <label for="videoNumber">
+          Jump to #
+        </label>
 
         <input
           id="videoNumber"
@@ -301,9 +370,13 @@
           min="1"
           placeholder="125">
 
-        <button id="jumpButton" class="primary" type="button">
+        <button
+          id="jumpButton"
+          class="primary"
+          type="button">
           Go
         </button>
+
       </div>
 
       <input
@@ -312,27 +385,46 @@
         placeholder="Search approved video titles"
         aria-label="Search approved videos">
 
-      <p id="status" class="status" role="status">
+      <p
+        id="status"
+        class="status"
+        role="status">
         Loading playlist…
       </p>
 
-      <div id="playlist" class="playlist"></div>
+      <div
+        id="playlist"
+        class="playlist">
+      </div>
 
-      <!-- NEW: JSON IMPORT FEATURE -->
+
+      <!-- ==================================
+           UPDATE APPROVED VIDEOS
+      =================================== -->
+
       <div class="setup">
 
         <h3>Update approved videos</h3>
 
         <p class="help">
-          Download a fresh JSON export whenever you change your
-          YouTube playlist, then import it here. It updates this
-          browser immediately—no GitHub edits needed.
+          Download a fresh JSON export whenever you
+          change your YouTube playlist, then import it here.
+
+          Your videos will update immediately without
+          requiring GitHub edits.
         </p>
+
+
+        <!-- JSON IMPORT -->
 
         <div class="import-actions">
 
-          <label class="file-button" for="jsonFile">
+          <label
+            class="file-button"
+            for="jsonFile">
+
             📂 Import playlist JSON
+
           </label>
 
           <input
@@ -342,53 +434,134 @@
 
         </div>
 
-        <!-- GENERAL YOUTUBE TOOLS LINK -->
+
+        <!-- ==================================
+             NEW: PLAYLIST LINK + COPY BUTTON
+        =================================== -->
+
+        <div class="playlist-link-box">
+
+          <h4>📋 My Pre-Approved Playlist</h4>
+
+          <p class="playlist-url" id="playlistURLDisplay">
+            https://youtube.com/playlist?list=PLdJXwy8HTZzE
+          </p>
+
+          <div class="playlist-actions">
+
+            <button
+              id="copyPlaylistButton"
+              type="button">
+
+              📋 Copy Playlist Link
+
+            </button>
+
+            <a
+              id="openPlaylistLink"
+              class="link-button"
+              href="https://youtube.com/playlist?list=PLdJXwy8HTZzE&si=fn9i-FGFWtErnlGa"
+              target="_blank"
+              rel="noopener noreferrer">
+
+              🔗 Open My Playlist
+
+            </a>
+
+          </div>
+
+          <p
+            id="copyStatus"
+            class="copy-success"
+            aria-live="polite">
+          </p>
+
+        </div>
+
+
+        <!-- JSON EXPORT WEBSITE -->
+
         <p class="help">
+
           <a
             href="https://yttools.pulkitgarg.dev/youtube-playlist-to-json"
             target="_blank"
             rel="noopener noreferrer">
+
             get json here if needed?
+
           </a>
+
         </p>
 
-        <p id="importStatus"
-           class="status"
-           aria-live="polite"></p>
+
+        <p
+          id="importStatus"
+          class="status"
+          aria-live="polite">
+        </p>
+
+
+        <!-- OPTIONAL AUTOMATIC SYNC -->
 
         <details>
-          <summary>Optional automatic sync</summary>
+
+          <summary>
+            Optional automatic sync
+          </summary>
 
           <p class="help">
-            Try YouTube's original playlist API when it's not
-            blocked. Imports are kept until you replace them.
-            The original API may fail under Screen Time restrictions.
+            Try YouTube's original playlist API when
+            it's not blocked.
+
+            Imported videos remain available if
+            the API cannot connect.
           </p>
 
-          <button id="syncButton" type="button">
+          <button
+            id="syncButton"
+            type="button">
+
             Try automatic sync
+
           </button>
+
         </details>
 
       </div>
 
     </section>
+
   </div>
+
 </main>
 
+
 <!-- HIDDEN YOUTUBE API PLAYER -->
-<div id="apiPlayerContainer" aria-hidden="true">
+
+<div
+  id="apiPlayerContainer"
+  aria-hidden="true">
+
   <div id="apiPlayer"></div>
+
 </div>
 
+
+
 <script>
+
 "use strict";
+
 
 /* ======================================
    PLAYLIST CONFIGURATION
 ====================================== */
 
 const PLAYLIST_ID = "PLdJXwy8HTZzE";
+
+const PLAYLIST_URL =
+  "https://youtube.com/playlist?list=PLdJXwy8HTZzE&si=fn9i-FGFWtErnlGa";
 
 const STORAGE_KEY =
   "approvedPlaylistData_" + PLAYLIST_ID;
@@ -398,20 +571,108 @@ const FALLBACK_COUNT = 200;
 const EMBED_BASE =
   "https://www.youtube-nocookie.com/embed/";
 
+
 /* ======================================
    APPLICATION STATE
 ====================================== */
 
 let videos = [];
+
 let selectedIndex = 0;
+
 let apiPlayer = null;
+
 let apiLoading = false;
 
-const byId = id => document.getElementById(id);
+
+const byId = id =>
+  document.getElementById(id);
+
 
 const validId = id =>
   typeof id === "string" &&
   /^[a-zA-Z0-9_-]{11}$/.test(id);
+
+
+/* ======================================
+   NEW: COPY PLAYLIST LINK
+====================================== */
+
+async function copyPlaylistLink() {
+
+  const button = byId("copyPlaylistButton");
+
+  const status = byId("copyStatus");
+
+  try {
+
+    await navigator.clipboard.writeText(
+      PLAYLIST_URL
+    );
+
+    status.textContent =
+      "✓ Playlist link copied!";
+
+    button.textContent =
+      "✓ Copied!";
+
+    setTimeout(() => {
+
+      button.textContent =
+        "📋 Copy Playlist Link";
+
+      status.textContent = "";
+
+    }, 2500);
+
+  } catch (error) {
+
+    // Fallback for browsers where the
+    // Clipboard API is unavailable.
+
+    try {
+
+      const input =
+        document.createElement("textarea");
+
+      input.value = PLAYLIST_URL;
+
+      input.style.position = "fixed";
+      input.style.opacity = "0";
+
+      document.body.appendChild(input);
+
+      input.focus();
+      input.select();
+
+      const copied =
+        document.execCommand("copy");
+
+      input.remove();
+
+      if (!copied) {
+        throw new Error("Copy failed");
+      }
+
+      status.textContent =
+        "✓ Playlist link copied!";
+
+      setTimeout(() => {
+        status.textContent = "";
+      }, 2500);
+
+    } catch (fallbackError) {
+
+      status.textContent =
+        "Could not copy automatically. " +
+        "Use the playlist link shown above.";
+
+    }
+
+  }
+
+}
+
 
 /* ======================================
    PARSE IMPORTED JSON
@@ -419,62 +680,80 @@ const validId = id =>
 
 function normalizeExport(data) {
 
-  // Supports YouTube Tools JSON exports
-  // and plain arrays of video IDs.
-
   const input = Array.isArray(data)
     ? data
     : data?.videos;
 
-  if (!Array.isArray(input) || input.length === 0) {
+  if (
+    !Array.isArray(input) ||
+    input.length === 0
+  ) {
+
     throw new Error(
       "No videos found. Choose a playlist JSON export."
     );
+
   }
+
+  // Only accept the approved playlist.
 
   if (
     data?.playlist?.id &&
     data.playlist.id !== PLAYLIST_ID
   ) {
+
     throw new Error(
       "This JSON belongs to a different playlist."
     );
+
   }
 
-  const normalized = input.map((item, index) => {
+  const normalized =
+    input.map((item, index) => {
 
-    const id = typeof item === "string"
-      ? item
-      : (item?.videoId || item?.id);
+      const id = typeof item === "string"
+        ? item
+        : (item?.videoId || item?.id);
 
-    if (!validId(id)) {
-      throw new Error(
-        `Invalid video ID at position ${index + 1}.`
-      );
-    }
+      if (!validId(id)) {
 
-    return {
-      id,
-      title: typeof item?.title === "string"
-        ? item.title
-        : `Video ${index + 1}`,
+        throw new Error(
+          `Invalid video ID at position ${index + 1}.`
+        );
 
-      thumbnail:
-        `https://i.ytimg.com/vi/${id}/mqdefault.jpg`
-    };
+      }
 
-  });
+      return {
+
+        id,
+
+        title:
+          typeof item?.title === "string"
+            ? item.title
+            : `Video ${index + 1}`,
+
+        thumbnail:
+          `https://i.ytimg.com/vi/${id}/mqdefault.jpg`
+
+      };
+
+    });
 
   return normalized;
+
 }
+
 
 /* ======================================
    STATUS MESSAGES
 ====================================== */
 
 function setStatus(message) {
+
   byId("status").textContent = message;
+
 }
+
 
 /* ======================================
    SAVE PLAYLIST IN BROWSER
@@ -495,7 +774,9 @@ function persist() {
       "Imported for this session, but browser storage is unavailable.";
 
   }
+
 }
+
 
 /* ======================================
    RESTORE SAVED PLAYLIST
@@ -510,16 +791,22 @@ function restore() {
     );
 
     if (stored) {
+
       videos = normalizeExport(stored);
+
     }
 
   } catch (error) {
+
     console.warn(
       "Could not restore saved playlist",
       error
     );
+
   }
+
 }
+
 
 /* ======================================
    BUILD VIDEO PLAYER URL
@@ -530,9 +817,13 @@ function playerURL(index) {
   if (videos[index]) {
 
     const params = new URLSearchParams({
+
       list: PLAYLIST_ID,
+
       playsinline: "1",
+
       rel: "0"
+
     });
 
     return (
@@ -544,63 +835,97 @@ function playerURL(index) {
 
   }
 
+
   // Fallback when metadata is unavailable.
 
   const params = new URLSearchParams({
+
     list: PLAYLIST_ID,
+
     index: String(index),
+
     playsinline: "1",
+
     rel: "0"
+
   });
 
   return EMBED_BASE + "videoseries?" + params;
+
 }
+
 
 /* ======================================
    SELECT AND PLAY VIDEO
 ====================================== */
 
-function selectVideo(index, scrollToSelection = false) {
+function selectVideo(
+  index,
+  scrollToSelection = false
+) {
 
-  const count = videos.length || FALLBACK_COUNT;
+  const count =
+    videos.length || FALLBACK_COUNT;
 
   if (
     !Number.isInteger(index) ||
     index < 0 ||
     index >= count
   ) {
+
     return;
+
   }
 
   selectedIndex = index;
 
-  byId("videoPlayer").src = playerURL(index);
+  byId("videoPlayer").src =
+    playerURL(index);
 
-  byId("currentVideo").textContent = videos[index]
-    ? `Video ${index + 1} of ${count}: ${videos[index].title}`
-    : `Video ${index + 1} of ${count} (playlist metadata unavailable)`;
+  byId("currentVideo").textContent =
+    videos[index]
 
-  document.querySelectorAll(".video-item").forEach(button => {
+      ? `Video ${index + 1} of ${count}: ${videos[index].title}`
+
+      : `Video ${index + 1} of ${count} (playlist metadata unavailable)`;
+
+
+  document.querySelectorAll(
+    ".video-item"
+  ).forEach(button => {
 
     const active =
       Number(button.dataset.index) === index;
 
-    button.classList.toggle("active", active);
+    button.classList.toggle(
+      "active",
+      active
+    );
 
     button.setAttribute(
       "aria-current",
       String(active)
     );
 
-    if (active && scrollToSelection) {
+    if (
+      active &&
+      scrollToSelection
+    ) {
+
       button.scrollIntoView({
+
         block: "nearest",
+
         behavior: "smooth"
+
       });
+
     }
 
   });
+
 }
+
 
 /* ======================================
    DISPLAY THUMBNAILS AND TITLES
@@ -613,9 +938,12 @@ function renderPlaylist() {
   list.replaceChildren();
 
   const term = byId("search")
-    .value.trim().toLowerCase();
+    .value
+    .trim()
+    .toLowerCase();
 
-  const count = videos.length || FALLBACK_COUNT;
+  const count =
+    videos.length || FALLBACK_COUNT;
 
   byId("videoNumber").max = count;
 
@@ -624,11 +952,17 @@ function renderPlaylist() {
   const fragment =
     document.createDocumentFragment();
 
-  for (let index = 0; index < count; index++) {
+
+  for (
+    let index = 0;
+    index < count;
+    index++
+  ) {
 
     const video = videos[index];
 
-    const title = video?.title ||
+    const title =
+      video?.title ||
       `Video ${index + 1}`;
 
     if (
@@ -636,7 +970,9 @@ function renderPlaylist() {
       !title.toLowerCase().includes(term) &&
       !String(index + 1).includes(term)
     ) {
+
       continue;
+
     }
 
     matches++;
@@ -645,40 +981,59 @@ function renderPlaylist() {
       document.createElement("button");
 
     button.type = "button";
+
     button.className = "video-item";
-    button.dataset.index = String(index);
+
+    button.dataset.index =
+      String(index);
 
     button.addEventListener(
       "click",
       () => selectVideo(index)
     );
 
+
     if (video) {
 
-      const img = document.createElement("img");
+      const img =
+        document.createElement("img");
 
       img.src = video.thumbnail;
+
       img.alt = "";
+
       img.loading = "lazy";
+
       img.className = "thumbnail";
 
       button.appendChild(img);
 
     }
 
-    const info = document.createElement("div");
+
+    const info =
+      document.createElement("div");
+
     info.className = "video-text";
 
-    const heading = document.createElement("div");
+
+    const heading =
+      document.createElement("div");
+
     heading.className = "video-title";
+
     heading.textContent = title;
 
-    const meta = document.createElement("div");
+
+    const meta =
+      document.createElement("div");
+
     meta.className = "video-meta";
 
     meta.textContent = video
       ? `#${index + 1}`
       : `#${index + 1} · thumbnail unavailable`;
+
 
     info.append(heading, meta);
 
@@ -688,34 +1043,53 @@ function renderPlaylist() {
 
   }
 
+
   list.appendChild(fragment);
 
-  if (term && matches === 0) {
 
-    setStatus("No matching approved videos.");
+  if (
+    term &&
+    matches === 0
+  ) {
+
+    setStatus(
+      "No matching approved videos."
+    );
 
   } else {
 
     setStatus(
+
       videos.length
+
         ? `${videos.length} approved videos loaded${
             term ? ` · ${matches} matches` : ""
           }.`
+
         : "No saved video IDs yet. Import JSON for thumbnails and reliable video selection."
+
     );
 
   }
 
-  document.querySelectorAll(".video-item").forEach(button => {
+
+  document.querySelectorAll(
+    ".video-item"
+  ).forEach(button => {
 
     button.classList.toggle(
+
       "active",
-      Number(button.dataset.index) === selectedIndex
+
+      Number(button.dataset.index) ===
+      selectedIndex
+
     );
 
   });
 
 }
+
 
 /* ======================================
    IMPORT JSON FILE
@@ -723,7 +1097,8 @@ function renderPlaylist() {
 
 async function importJSON(event) {
 
-  const file = event.target.files?.[0];
+  const file =
+    event.target.files?.[0];
 
   if (!file) {
     return;
@@ -735,7 +1110,8 @@ async function importJSON(event) {
       await file.text()
     );
 
-    const imported = normalizeExport(data);
+    const imported =
+      normalizeExport(data);
 
     videos = imported;
 
@@ -749,7 +1125,8 @@ async function importJSON(event) {
 
     selectVideo(0);
 
-    const stamp = new Date().toLocaleString();
+    const stamp =
+      new Date().toLocaleString();
 
     byId("importStatus").textContent =
       `Imported ${videos.length} videos from ${file.name} on ${stamp}. Saved on this device.`;
@@ -761,11 +1138,12 @@ async function importJSON(event) {
 
   } finally {
 
-    // Allows importing the same filename again.
     event.target.value = "";
 
   }
+
 }
+
 
 /* ======================================
    OPTIONAL AUTOMATIC YOUTUBE SYNC
@@ -775,7 +1153,10 @@ function tryAutomaticSync() {
 
   if (apiLoading) {
 
-    setStatus("Already trying automatic sync…");
+    setStatus(
+      "Already trying automatic sync…"
+    );
+
     return;
 
   }
@@ -787,14 +1168,20 @@ function tryAutomaticSync() {
   );
 
   if (window.YT?.Player) {
+
     initializeApi();
+
     return;
+
   }
 
-  const script = document.createElement("script");
+
+  const script =
+    document.createElement("script");
 
   script.src =
     "https://www.youtube.com/iframe_api";
+
 
   script.onerror = () => {
 
@@ -806,11 +1193,16 @@ function tryAutomaticSync() {
 
   };
 
+
   document.head.appendChild(script);
+
 
   setTimeout(() => {
 
-    if (apiLoading && !apiPlayer) {
+    if (
+      apiLoading &&
+      !apiPlayer
+    ) {
 
       apiLoading = false;
 
@@ -821,73 +1213,100 @@ function tryAutomaticSync() {
     }
 
   }, 12000);
+
 }
+
 
 /* ======================================
    INITIALIZE YOUTUBE IFRAME API
 ====================================== */
 
-window.onYouTubeIframeAPIReady = () =>
-  initializeApi();
+window.onYouTubeIframeAPIReady =
+  () => initializeApi();
+
 
 function initializeApi() {
 
   if (apiPlayer) {
+
     readApiIds();
+
     return;
+
   }
 
-  apiPlayer = new YT.Player("apiPlayer", {
 
-    width: "210",
-    height: "180",
+  apiPlayer = new YT.Player(
+    "apiPlayer",
+    {
 
-    playerVars: {
-      listType: "playlist",
-      list: PLAYLIST_ID,
-      controls: 0
-    },
+      width: "210",
 
-    events: {
+      height: "180",
 
-      onReady: event => {
+      playerVars: {
 
-        event.target.cuePlaylist({
-          listType: "playlist",
-          list: PLAYLIST_ID
-        });
+        listType: "playlist",
 
-        let attempts = 0;
+        list: PLAYLIST_ID,
 
-        const timer = setInterval(() => {
-
-          readApiIds();
-
-          if (++attempts >= 12) {
-
-            clearInterval(timer);
-            apiLoading = false;
-
-          }
-
-        }, 1000);
+        controls: 0
 
       },
 
-      onError: () => {
+      events: {
 
-        apiLoading = false;
+        onReady: event => {
 
-        setStatus(
-          "Automatic sync failed. Imported videos remain available."
-        );
+          event.target.cuePlaylist({
+
+            listType: "playlist",
+
+            list: PLAYLIST_ID
+
+          });
+
+
+          let attempts = 0;
+
+
+          const timer = setInterval(
+            () => {
+
+              readApiIds();
+
+              if (++attempts >= 12) {
+
+                clearInterval(timer);
+
+                apiLoading = false;
+
+              }
+
+            },
+            1000
+          );
+
+        },
+
+
+        onError: () => {
+
+          apiLoading = false;
+
+          setStatus(
+            "Automatic sync failed. Imported videos remain available."
+          );
+
+        }
 
       }
 
     }
+  );
 
-  });
 }
+
 
 /* ======================================
    READ VIDEO IDS FROM YOUTUBE
@@ -897,40 +1316,57 @@ function readApiIds() {
 
   try {
 
-    const ids = apiPlayer?.getPlaylist?.();
+    const ids =
+      apiPlayer?.getPlaylist?.();
 
     if (
       !Array.isArray(ids) ||
       !ids.length ||
       !ids.every(validId)
     ) {
+
       return;
+
     }
 
-    // Preserve imported titles when IDs match.
 
     const oldTitles = new Map(
-      videos.map(v => [v.id, v.title])
+      videos.map(v => [
+        v.id,
+        v.title
+      ])
     );
 
-    const updated = ids.map((id, i) => ({
 
-      id,
+    const updated = ids.map(
+      (id, i) => ({
 
-      title: oldTitles.get(id) ||
-        `Video ${i + 1}`,
+        id,
 
-      thumbnail:
-        `https://i.ytimg.com/vi/${id}/mqdefault.jpg`
+        title:
+          oldTitles.get(id) ||
+          `Video ${i + 1}`,
 
-    }));
+        thumbnail:
+          `https://i.ytimg.com/vi/${id}/mqdefault.jpg`
+
+      })
+    );
+
 
     if (
-      JSON.stringify(updated.map(v => v.id)) ===
-      JSON.stringify(videos.map(v => v.id))
+      JSON.stringify(
+        updated.map(v => v.id)
+      ) ===
+      JSON.stringify(
+        videos.map(v => v.id)
+      )
     ) {
+
       return;
+
     }
+
 
     videos = updated;
 
@@ -947,10 +1383,15 @@ function readApiIds() {
 
   } catch (error) {
 
-    console.warn("Playlist API error", error);
+    console.warn(
+      "Playlist API error",
+      error
+    );
 
   }
+
 }
+
 
 /* ======================================
    BUTTON EVENTS
@@ -961,25 +1402,36 @@ byId("jsonFile").addEventListener(
   importJSON
 );
 
+
 byId("search").addEventListener(
   "input",
   renderPlaylist
 );
 
+
 byId("previousButton").addEventListener(
   "click",
-  () => selectVideo(selectedIndex - 1, true)
+  () => selectVideo(
+    selectedIndex - 1,
+    true
+  )
 );
+
 
 byId("nextButton").addEventListener(
   "click",
-  () => selectVideo(selectedIndex + 1, true)
+  () => selectVideo(
+    selectedIndex + 1,
+    true
+  )
 );
+
 
 byId("refreshPlayerButton").addEventListener(
   "click",
   () => selectVideo(selectedIndex)
 );
+
 
 byId("jumpButton").addEventListener(
   "click",
@@ -989,29 +1441,47 @@ byId("jumpButton").addEventListener(
   )
 );
 
+
 byId("videoNumber").addEventListener(
   "keydown",
   event => {
 
     if (event.key === "Enter") {
+
       byId("jumpButton").click();
+
     }
 
   }
 );
+
 
 byId("syncButton").addEventListener(
   "click",
   tryAutomaticSync
 );
 
+
+/* ======================================
+   NEW: COPY PLAYLIST BUTTON EVENT
+====================================== */
+
+byId("copyPlaylistButton").addEventListener(
+  "click",
+  copyPlaylistLink
+);
+
+
 /* ======================================
    START WEBSITE
 ====================================== */
 
 restore();
+
 renderPlaylist();
+
 selectVideo(0);
+
 
 </script>
 
