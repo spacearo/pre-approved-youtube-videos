@@ -1476,12 +1476,22 @@ byId("copyPlaylistButton").addEventListener(
    START WEBSITE
 ====================================== */
 
+
+// First, restore previously saved videos.
 restore();
 
+// Display saved thumbnails immediately.
 renderPlaylist();
 
+// Load the first approved video.
 selectVideo(0);
 
+// Automatically attempt to update the playlist
+// whenever the website opens.
+//
+// If YouTube is blocked, the saved videos remain
+// available without needing to import JSON.
+tryAutomaticSync();
 
 </script>
 
