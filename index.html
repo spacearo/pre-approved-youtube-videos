@@ -1,516 +1,832 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+  <meta name="referrer"
+        content="strict-origin-when-cross-origin">
+  <meta name="theme-color" content="#0b1020">
+  <title>My Approved Playlist</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1">
+  <style>
+    * { box-sizing: border-box; }
 
-    <meta name="referrer"
-          content="strict-origin-when-cross-origin">
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont,
+                   "Segoe UI", sans-serif;
+      background: #0b1020;
+      color: white;
+    }
 
-    <meta name="theme-color" content="#0b1020">
+    header {
+      padding: 24px 20px;
+      background: linear-gradient(120deg, #182c50, #10172b);
+    }
 
-    <title>My Approved Playlist</title>
+    h1 { margin: 0; font-size: 25px; }
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+    .subtitle {
+      color: #aebcda;
+      margin-top: 8px;
+    }
 
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont,
-                         "Segoe UI", sans-serif;
-            background: #0b1020;
-            color: white;
-        }
+    main {
+      max-width: 1200px;
+      padding: 18px;
+      margin: auto;
+    }
 
-        header {
-            padding: 25px 20px;
-            background: #172340;
-        }
+    .layout {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
 
-        h1 {
-            margin: 0;
-            font-size: 24px;
-        }
+    .panel {
+      background: #192237;
+      border: 1px solid #394969;
+      border-radius: 18px;
+      padding: 16px;
+      min-width: 0;
+    }
 
-        .subtitle {
-            color: #aab9d5;
-            margin-top: 8px;
-        }
+    .player-box {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 12px;
+      background: #000;
+      overflow: hidden;
+    }
 
-        main {
-            max-width: 1100px;
-            margin: auto;
-            padding: 20px;
-        }
+    #videoPlayer {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
 
-        .container {
-            display: grid;
-            grid-template-columns: 1.4fr 1fr;
-            gap: 20px;
-        }
+    .controls, .jump {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 15px;
+    }
 
-        .panel {
-            background: #172238;
-            border: 1px solid #344362;
-            border-radius: 16px;
-            padding: 15px;
-        }
+    button {
+      background: #34486f;
+      border: 1px solid #53698f;
+      border-radius: 10px;
+      color: white;
+      padding: 12px;
+      font: inherit;
+      cursor: pointer;
+    }
 
-        .video-container {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: black;
-            border-radius: 12px;
-            overflow: hidden;
-        }
+    button:hover { background: #4968e9; }
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+    button:focus-visible, input:focus-visible {
+      outline: 3px solid #8baaff;
+    }
 
-        button {
-            padding: 12px 15px;
-            background: #30456c;
-            color: white;
-            border: 1px solid #52658a;
-            border-radius: 9px;
-            font-size: 15px;
-            cursor: pointer;
-        }
+    .primary { background: #4968e9; }
 
-        button:hover {
-            background: #4968e9;
-        }
+    input {
+      background: #0d1529;
+      border: 1px solid #53698f;
+      border-radius: 10px;
+      color: white;
+      padding: 12px;
+      font-size: 16px;
+      width: 110px;
+    }
 
-        button:focus-visible,
-        input:focus-visible {
-            outline: 3px solid #91afff;
-        }
+    .status {
+      color: #b7c5df;
+      font-size: 14px;
+      line-height: 1.6;
+    }
 
-        .controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
+    .playlist {
+      max-height: 570px;
+      overflow-y: auto;
+      display: grid;
+      gap: 10px;
+      margin-top: 15px;
+    }
 
-        .playlist {
-            max-height: 550px;
-            overflow-y: auto;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-        }
+    .video-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      padding: 8px;
+      width: 100%;
+    }
 
-        .playlist button {
-            padding: 15px 5px;
-        }
+    .video-item.active {
+      background: #4968e9;
+      border-color: #aabfff;
+    }
 
-        .playlist button.active {
-            background: #4968e9;
-            border-color: #a8baff;
-        }
+    .thumbnail {
+      width: 125px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 7px;
+      background: #0b1020;
+      flex-shrink: 0;
+    }
 
-        input {
-            padding: 12px;
-            background: #0b1428;
-            color: white;
-            border: 1px solid #52658a;
-            border-radius: 9px;
-            font-size: 16px;
-            width: 120px;
-        }
+    .video-info { min-width: 0; }
 
-        .status {
-            color: #b5c3de;
-            font-size: 14px;
-            line-height: 1.5;
-        }
+    .video-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
 
-        .jump {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+    .video-number {
+      font-size: 12px;
+      color: #bac9e5;
+      margin-top: 4px;
+    }
 
-        @media (max-width: 750px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
+    details {
+      margin-top: 20px;
+      border-top: 1px solid #405074;
+      padding-top: 15px;
+    }
 
-            main {
-                padding: 12px;
-            }
+    summary { cursor: pointer; }
 
-            .playlist {
-                max-height: 420px;
-            }
-        }
-    </style>
+    textarea {
+      width: 100%;
+      height: 105px;
+      background: #0d1529;
+      border: 1px solid #53698f;
+      border-radius: 9px;
+      color: white;
+      padding: 10px;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    /* Separate player used only to read playlist IDs */
+    #apiContainer {
+      position: absolute;
+      left: -10000px;
+      top: 0;
+      width: 240px;
+      height: 200px;
+      overflow: hidden;
+    }
+
+    @media (max-width: 750px) {
+      .layout { grid-template-columns: 1fr; }
+      main { padding: 12px; }
+      .playlist { max-height: 520px; }
+    }
+  </style>
 </head>
 
 <body>
-
 <header>
-    <h1>▶ My Approved Playlist</h1>
-    <div class="subtitle">
-        Only the videos you selected
-    </div>
+  <h1>▶ My Approved Playlist</h1>
+  <div class="subtitle">
+    Only the videos you selected
+  </div>
 </header>
 
 <main>
+  <div class="layout">
 
-    <div class="container">
+    <section class="panel">
+      <div class="player-box">
+        <iframe
+          id="videoPlayer"
+          title="Approved playlist video"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="autoplay; encrypted-media;
+                 picture-in-picture; fullscreen"
+          allowfullscreen>
+        </iframe>
+      </div>
 
-        <!-- VIDEO PLAYER -->
+      <div class="controls">
+        <button onclick="previousVideo()">
+          ← Previous
+        </button>
+        <button onclick="nextVideo()">
+          Next →
+        </button>
+        <button onclick="refreshVideo()">
+          ↻ Refresh
+        </button>
+      </div>
 
-        <section class="panel">
+      <p id="currentVideo" class="status">
+        Loading player...
+      </p>
 
-            <div class="video-container">
+      <p class="status">
+        Playback uses YouTube's privacy-enhanced
+        domain.
+      </p>
+    </section>
 
-                <iframe
-                    id="videoPlayer"
-                    title="Approved YouTube playlist"
-                    referrerpolicy="strict-origin-when-cross-origin"
-                    allow="accelerometer; autoplay;
-                           clipboard-write; encrypted-media;
-                           gyroscope; picture-in-picture;
-                           web-share"
-                    allowfullscreen>
-                </iframe>
+    <section class="panel">
+      <h2>Choose a video</h2>
 
-            </div>
+      <div class="jump">
+        <label for="videoNumber">Jump to #</label>
+        <input id="videoNumber"
+               type="number"
+               min="1"
+               placeholder="125">
+        <button class="primary"
+                onclick="jumpToNumber()">
+          Go
+        </button>
+      </div>
 
-            <div class="controls">
+      <p id="status" class="status">
+        Loading approved videos...
+      </p>
 
-                <button onclick="previousVideo()">
-                    ← Previous
-                </button>
+      <div id="playlist" class="playlist"></div>
 
-                <button onclick="nextVideo()">
-                    Next →
-                </button>
+      <details>
+        <summary>Playlist settings</summary>
 
-                <button onclick="refreshVideo()">
-                    ↻ Refresh
-                </button>
+        <p class="status">
+          If thumbnails cannot load automatically,
+          you can paste a saved JSON array of
+          YouTube video IDs here.
+        </p>
 
-            </div>
+        <textarea id="savedIdsInput"
+          placeholder='["videoID1","videoID2"]'
+        ></textarea>
 
-            <p class="status" id="currentVideo">
-                Video 1
-            </p>
+        <div class="controls">
+          <button onclick="importIds()">
+            Import video IDs
+          </button>
 
-            <p class="status">
-                This player uses YouTube's
-                privacy-enhanced embedding domain.
-            </p>
+          <button onclick="copyIds()">
+            Copy current IDs
+          </button>
 
-        </section>
+          <button onclick="retryApi()">
+            Retry YouTube API
+          </button>
+        </div>
 
+        <p class="status">
+          Imported IDs are saved in this browser.
+          To make them available automatically on
+          other devices, paste them into
+          SAVED_VIDEO_IDS in the source code.
+        </p>
+      </details>
+    </section>
 
-        <!-- PLAYLIST -->
-
-        <section class="panel">
-
-            <h2>Choose a video</h2>
-
-            <div class="jump">
-
-                <label for="videoNumber">
-                    Jump to #
-                </label>
-
-                <input
-                    type="number"
-                    id="videoNumber"
-                    min="1"
-                    max="200"
-                    placeholder="125">
-
-                <button onclick="jumpToNumber()">
-                    Go
-                </button>
-
-            </div>
-
-            <div
-                id="playlist"
-                class="playlist">
-            </div>
-
-            <p class="status">
-                Select a video number to jump
-                directly to that position.
-            </p>
-
-            <p class="status" id="message"></p>
-
-        </section>
-
-    </div>
-
+  </div>
 </main>
 
+<div id="apiContainer">
+  <div id="apiPlayer"></div>
+</div>
 
 <script>
-
-    /*
-    =====================================
-    PLAYLIST SETTINGS
-    =====================================
-    */
-
-    const PLAYLIST_ID = "PLdJXwy8HTZzE";
-
-    // Change this if your playlist has
-    // a different number of videos.
-
-    const TOTAL_VIDEOS = 200;
-
-    // Use YouTube's privacy-enhanced domain.
-
-    const EMBED_DOMAIN =
-        "https://www.youtube-nocookie.com";
-
-    let currentIndex = 0;
-
-
-    /*
-    =====================================
-    BUILD VIDEO URL
-    =====================================
-    */
-
-    function getVideoURL(index) {
-
-        const params = new URLSearchParams({
-            list: PLAYLIST_ID,
-            index: String(index),
-            playsinline: "1",
-            rel: "0"
-        });
-
-        return (
-            EMBED_DOMAIN +
-            "/embed/videoseries?" +
-            params.toString()
-        );
-
-    }
-
-
-    /*
-    =====================================
-    LOAD VIDEO
-    =====================================
-    */
-
-    function loadVideo(index) {
-
-        if (index < 0 || index >= TOTAL_VIDEOS) {
-            return;
-        }
-
-        currentIndex = index;
-
-        const player =
-            document.getElementById("videoPlayer");
-
-        player.src = getVideoURL(currentIndex);
-
-        document.getElementById(
-            "currentVideo"
-        ).textContent =
-            "Selected video " +
-            (currentIndex + 1) +
-            " of " +
-            TOTAL_VIDEOS;
-
-
-        updateActiveVideo();
-
-    }
-
-
-    /*
-    =====================================
-    NEXT AND PREVIOUS
-    =====================================
-    */
-
-    function nextVideo() {
-
-        if (currentIndex < TOTAL_VIDEOS - 1) {
-            loadVideo(currentIndex + 1);
-        }
-
-    }
-
-
-    function previousVideo() {
-
-        if (currentIndex > 0) {
-            loadVideo(currentIndex - 1);
-        }
-
-    }
-
-
-    /*
-    =====================================
-    JUMP TO VIDEO
-    =====================================
-    */
-
-    function jumpToNumber() {
-
-        const input =
-            document.getElementById("videoNumber");
-
-        const number = Number(input.value);
-
-        if (
-            !Number.isInteger(number) ||
-            number < 1 ||
-            number > TOTAL_VIDEOS
-        ) {
-
-            document.getElementById(
-                "message"
-            ).textContent =
-                "Enter a number between 1 and " +
-                TOTAL_VIDEOS;
-
-            return;
-
-        }
-
-        document.getElementById(
-            "message"
-        ).textContent = "";
-
-        loadVideo(number - 1);
-
-    }
-
-
-    /*
-    =====================================
-    CREATE PLAYLIST BUTTONS
-    =====================================
-    */
-
-    function createPlaylist() {
-
-        const container =
-            document.getElementById("playlist");
-
-        container.innerHTML = "";
-
-        for (
-            let i = 0;
-            i < TOTAL_VIDEOS;
-            i++
-        ) {
-
-            const button =
-                document.createElement("button");
-
-            button.textContent = i + 1;
-
-            button.dataset.index = i;
-
-            button.addEventListener(
-                "click",
-                function () {
-                    loadVideo(i);
-                }
-            );
-
-            container.appendChild(button);
-
-        }
-
-    }
-
-
-    /*
-    =====================================
-    HIGHLIGHT SELECTED VIDEO
-    =====================================
-    */
-
-    function updateActiveVideo() {
-
-        const buttons =
-            document.querySelectorAll(
-                "#playlist button"
-            );
-
-        buttons.forEach(function (button) {
-
-            const index =
-                Number(button.dataset.index);
-
-            button.classList.toggle(
-                "active",
-                index === currentIndex
-            );
-
-        });
-
-    }
-
-
-    /*
-    =====================================
-    REFRESH PLAYER
-    =====================================
-    */
-
-    function refreshVideo() {
-
-        const player =
-            document.getElementById("videoPlayer");
-
-        player.src = getVideoURL(currentIndex);
-
-    }
-
-
-    /*
-    =====================================
-    INITIALIZE
-    =====================================
-    */
-
-    createPlaylist();
-
-    loadVideo(0);
-
-    document.getElementById(
-        "videoNumber"
-    ).addEventListener(
-        "keydown",
-        function (event) {
-
-            if (event.key === "Enter") {
-                jumpToNumber();
-            }
-
-        }
+"use strict";
+
+/* =====================================
+   CONFIGURATION
+===================================== */
+
+const PLAYLIST_ID = "PLdJXwy8HTZzE";
+const FALLBACK_COUNT = 200;
+
+const EMBED_DOMAIN =
+  "https://www.youtube-nocookie.com";
+
+/*
+  Optional permanent video-ID list.
+
+  If the API works on your computer,
+  copy the IDs using the button on the
+  page and paste them here later.
+
+  Example:
+  const SAVED_VIDEO_IDS = [
+    "dQw4w9WgXcQ",
+    "M7lc1UVf-VE"
+  ];
+*/
+
+const SAVED_VIDEO_IDS = [];
+
+/* =====================================
+   APPLICATION STATE
+===================================== */
+
+let videoIds = [];
+let currentIndex = 0;
+let apiPlayer = null;
+let apiStarted = false;
+let apiTimer = null;
+let apiPoller = null;
+
+/* =====================================
+   LOAD SAVED IDs
+===================================== */
+
+function validIds(value) {
+  return Array.isArray(value) &&
+    value.length > 0 &&
+    value.every(id =>
+      typeof id === "string" &&
+      /^[A-Za-z0-9_-]{11}$/.test(id)
+    );
+}
+
+function loadStoredIds() {
+  if (validIds(SAVED_VIDEO_IDS)) {
+    videoIds = SAVED_VIDEO_IDS.slice();
+    return;
+  }
+
+  try {
+    const stored = JSON.parse(
+      localStorage.getItem(
+        "approvedPlaylistIds_" + PLAYLIST_ID
+      ) || "null"
     );
 
-</script>
+    if (validIds(stored)) {
+      videoIds = stored;
+    }
+  } catch (error) {
+    console.warn(
+      "Could not load saved IDs:",
+      error
+    );
+  }
+}
 
+function storeIds(ids) {
+  if (!validIds(ids)) return;
+
+  videoIds = ids.slice();
+
+  try {
+    localStorage.setItem(
+      "approvedPlaylistIds_" + PLAYLIST_ID,
+      JSON.stringify(videoIds)
+    );
+  } catch (error) {
+    console.warn(
+      "Browser storage unavailable:",
+      error
+    );
+  }
+
+  renderPlaylist();
+}
+
+/* =====================================
+   VIDEO PLAYBACK (NOCOOKIE)
+===================================== */
+
+function getEmbedUrl(index) {
+  const id = videoIds[index];
+
+  if (id) {
+    const params = new URLSearchParams({
+      list: PLAYLIST_ID,
+      playsinline: "1",
+      rel: "0"
+    });
+
+    return (
+      EMBED_DOMAIN +
+      "/embed/" +
+      encodeURIComponent(id) +
+      "?" +
+      params.toString()
+    );
+  }
+
+  // Fallback before we know video IDs.
+  const params = new URLSearchParams({
+    list: PLAYLIST_ID,
+    index: String(index),
+    playsinline: "1",
+    rel: "0"
+  });
+
+  return (
+    EMBED_DOMAIN +
+    "/embed/videoseries?" +
+    params.toString()
+  );
+}
+
+function loadVideo(index) {
+  const count =
+    videoIds.length || FALLBACK_COUNT;
+
+  if (!Number.isInteger(index) ||
+      index < 0 || index >= count) {
+    return;
+  }
+
+  currentIndex = index;
+
+  document.getElementById(
+    "videoPlayer"
+  ).src = getEmbedUrl(index);
+
+  document.getElementById(
+    "currentVideo"
+  ).textContent =
+    "Video " + (index + 1) +
+    " of " + count;
+
+  updateActiveVideo();
+}
+
+function previousVideo() {
+  if (currentIndex > 0) {
+    loadVideo(currentIndex - 1);
+  }
+}
+
+function nextVideo() {
+  const count =
+    videoIds.length || FALLBACK_COUNT;
+
+  if (currentIndex < count - 1) {
+    loadVideo(currentIndex + 1);
+  }
+}
+
+function refreshVideo() {
+  loadVideo(currentIndex);
+}
+
+function jumpToNumber() {
+  const number = Number(
+    document.getElementById(
+      "videoNumber"
+    ).value
+  );
+
+  loadVideo(number - 1);
+}
+
+/* =====================================
+   THUMBNAILS AND PLAYLIST
+===================================== */
+
+function thumbnailUrl(id) {
+  return (
+    "https://i.ytimg.com/vi/" +
+    encodeURIComponent(id) +
+    "/mqdefault.jpg"
+  );
+}
+
+function renderPlaylist() {
+  const container =
+    document.getElementById("playlist");
+
+  container.replaceChildren();
+
+  const count =
+    videoIds.length || FALLBACK_COUNT;
+
+  document.getElementById(
+    "videoNumber"
+  ).max = count;
+
+  const fragment =
+    document.createDocumentFragment();
+
+  for (let i = 0; i < count; i++) {
+    const id = videoIds[i];
+
+    const button =
+      document.createElement("button");
+
+    button.className = "video-item";
+    button.dataset.index = i;
+
+    button.addEventListener(
+      "click",
+      () => loadVideo(i)
+    );
+
+    if (id) {
+      const img =
+        document.createElement("img");
+
+      img.className = "thumbnail";
+      img.src = thumbnailUrl(id);
+      img.alt = "Thumbnail " + (i + 1);
+      img.loading = "lazy";
+
+      button.appendChild(img);
+    }
+
+    const info =
+      document.createElement("div");
+
+    info.className = "video-info";
+
+    const title =
+      document.createElement("div");
+
+    title.className = "video-title";
+    title.textContent = "Video " + (i + 1);
+
+    const subtitle =
+      document.createElement("div");
+
+    subtitle.className = "video-number";
+    subtitle.textContent = id
+      ? "Approved playlist video"
+      : "Thumbnail unavailable";
+
+    info.appendChild(title);
+    info.appendChild(subtitle);
+    button.appendChild(info);
+
+    fragment.appendChild(button);
+  }
+
+  container.appendChild(fragment);
+
+  document.getElementById(
+    "status"
+  ).textContent = videoIds.length
+    ? videoIds.length +
+      " videos loaded with thumbnails."
+    : "Waiting for video IDs. " +
+      "Numbered navigation is available.";
+
+  updateActiveVideo();
+}
+
+function updateActiveVideo() {
+  document.querySelectorAll(
+    ".video-item"
+  ).forEach(button => {
+    const active =
+      Number(button.dataset.index) ===
+      currentIndex;
+
+    button.classList.toggle(
+      "active", active
+    );
+
+    button.setAttribute(
+      "aria-current",
+      active ? "true" : "false"
+    );
+  });
+}
+
+/* =====================================
+   YOUTUBE IFRAME API
+   Used only for retrieving video IDs.
+   Playback stays on nocookie.
+===================================== */
+
+function startApi() {
+  if (apiStarted) return;
+  apiStarted = true;
+
+  const script =
+    document.createElement("script");
+
+  script.src =
+    "https://www.youtube.com/iframe_api";
+
+  script.onerror = () => {
+    apiStarted = false;
+    setStatus(
+      videoIds.length
+        ? "Using saved thumbnails."
+        : "YouTube API blocked. " +
+          "Import saved video IDs for thumbnails."
+    );
+  };
+
+  document.head.appendChild(script);
+
+  apiTimer = setTimeout(() => {
+    if (!apiPlayer) {
+      setStatus(
+        videoIds.length
+          ? "Using saved thumbnails."
+          : "The original YouTube API " +
+            "did not respond."
+      );
+    }
+  }, 12000);
+}
+
+function setStatus(message) {
+  document.getElementById(
+    "status"
+  ).textContent = message;
+}
+
+window.onYouTubeIframeAPIReady =
+function () {
+  clearTimeout(apiTimer);
+
+  if (apiPlayer) return;
+
+  try {
+    apiPlayer = new YT.Player(
+      "apiPlayer",
+      {
+        width: 240,
+        height: 200,
+        playerVars: {
+          listType: "playlist",
+          list: PLAYLIST_ID,
+          playsinline: 1,
+          controls: 0
+        },
+        events: {
+          onReady: event => {
+            event.target.cuePlaylist({
+              listType: "playlist",
+              list: PLAYLIST_ID,
+              index: 0
+            });
+
+            readApiPlaylist();
+
+            apiPoller = setInterval(
+              readApiPlaylist, 1200
+            );
+
+            setTimeout(() => {
+              clearInterval(apiPoller);
+            }, 15000);
+          },
+          onStateChange: readApiPlaylist,
+          onError: () => {
+            setStatus(
+              "Playlist API could not load. " +
+              "Saved IDs can still be used."
+            );
+          }
+        }
+      }
+    );
+  } catch (error) {
+    console.warn(
+      "API initialization failed:",
+      error
+    );
+  }
+};
+
+function readApiPlaylist() {
+  if (!apiPlayer ||
+      typeof apiPlayer.getPlaylist !==
+      "function") {
+    return;
+  }
+
+  try {
+    const ids = apiPlayer.getPlaylist();
+
+    if (validIds(ids)) {
+      const previousIds =
+        JSON.stringify(videoIds);
+
+      if (JSON.stringify(ids) !==
+          previousIds) {
+        storeIds(ids);
+      }
+
+      if (ids.length > 0) {
+        setStatus(
+          ids.length +
+          " videos retrieved from YouTube."
+        );
+      }
+    }
+  } catch (error) {
+    console.warn(
+      "Could not read playlist:",
+      error
+    );
+  }
+}
+
+/* =====================================
+   MANUAL ID IMPORT / EXPORT
+===================================== */
+
+function importIds() {
+  const input = document.getElementById(
+    "savedIdsInput"
+  ).value;
+
+  try {
+    const ids = JSON.parse(input);
+
+    if (!validIds(ids)) {
+      throw new Error("Invalid video IDs.");
+    }
+
+    storeIds(ids);
+    loadVideo(0);
+
+    setStatus(
+      ids.length +
+      " video IDs imported successfully."
+    );
+  } catch (error) {
+    setStatus(
+      "Invalid JSON. Paste an array " +
+      "of 11-character YouTube video IDs."
+    );
+  }
+}
+
+async function copyIds() {
+  if (!videoIds.length) {
+    setStatus(
+      "No IDs available to copy yet."
+    );
+    return;
+  }
+
+  const value =
+    JSON.stringify(videoIds, null, 2);
+
+  document.getElementById(
+    "savedIdsInput"
+  ).value = value;
+
+  try {
+    await navigator.clipboard.writeText(
+      value
+    );
+
+    setStatus(
+      "Video IDs copied to clipboard."
+    );
+  } catch (error) {
+    setStatus(
+      "IDs shown in the text box. " +
+      "Select and copy them manually."
+    );
+  }
+}
+
+function retryApi() {
+  if (apiPlayer) {
+    readApiPlaylist();
+    return;
+  }
+
+  apiStarted = false;
+  startApi();
+}
+
+/* =====================================
+   INITIALIZATION
+===================================== */
+
+loadStoredIds();
+renderPlaylist();
+loadVideo(0);
+startApi();
+
+document.getElementById(
+  "videoNumber"
+).addEventListener(
+  "keydown",
+  event => {
+    if (event.key === "Enter") {
+      jumpToNumber();
+    }
+  }
+);
+
+</script>
 </body>
 </html>
